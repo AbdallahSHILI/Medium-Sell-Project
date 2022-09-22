@@ -1,7 +1,7 @@
-const User = require("../models/userModel");
+const User = require("../Models/userModel");
 const Sell = require("../Models/sellModel");
 
-exports.createOne = async (req, res, next) => {
+exports.sellSomething = async (req, res, next) => {
   try {
     // put information about product
     const product = await Sell.create(req.body);
@@ -16,15 +16,15 @@ exports.createOne = async (req, res, next) => {
         $push: { ProductsSelling: product.id },
       });
       return res.status(201).json({
-        status: "succes",
+        status: "Success",
         data: {
-          User,
+          product,
         },
       });
     }
   } catch (err) {
     return res.status(404).json({
-      status: "echec",
+      status: "Failed",
       data: err,
     });
   }
@@ -44,14 +44,14 @@ exports.ReserveOneProduct = async (req, res) => {
     // Test if the product was open
     if (product.Status == "Open") {
       // Test if the current user send a request
-      if (product.ListeReserve.includes(currentUser.id)) {
+      if (product.ListReserve.includes(currentUser.id)) {
         return res.status(400).send({
           message: "You already want to reserve that one !! ",
         });
       }
       //Add th id of current user in the specific product
       await product.findByIdAndUpdate(req.params.idProduct, {
-        $push: { ListeReserve: currentUser.id },
+        $push: { ListReserve: currentUser.id },
       });
       //Add  the id of product in the profile of current user
       await User.findByIdAndUpdate(currentUser.id, {
@@ -60,7 +60,7 @@ exports.ReserveOneProduct = async (req, res) => {
         },
       });
       return res.status(200).json({
-        status: "succes",
+        status: "Success",
         data: {
           currentUser,
         },
@@ -72,7 +72,7 @@ exports.ReserveOneProduct = async (req, res) => {
     });
   } catch (err) {
     return res.status(404).json({
-      status: "echec",
+      status: "Failed",
       message: err,
     });
   }
@@ -83,12 +83,12 @@ exports.getAllProducts = async (req, res, next) => {
   try {
     // Test if there is products
     const products = await Sell.find({
-      ListeReserve: { $ne: req.user.id },
+      ListReserve: { $ne: req.user.id },
       Status: "Open",
     });
     if (products) {
       return res.status(200).json({
-        status: "succes",
+        status: "Success",
         result: products.length,
         data: {
           products,
@@ -101,17 +101,17 @@ exports.getAllProducts = async (req, res, next) => {
     });
   } catch (err) {
     return res.status(404).json({
-      status: "echec",
+      status: "Failed",
       data: err,
     });
   }
 };
 
-//get all products maked by current client
+//get all products created by current client
 exports.getAllMyProducts = async (req, res) => {
   try {
     // Test if there is products
-    const products = await Products.find({
+    const products = await Sell.find({
       UserID: req.user.id,
     });
     if (!products) {
@@ -120,22 +120,22 @@ exports.getAllMyProducts = async (req, res) => {
         .send({ message: "You don't have any Products !! " });
     }
     return res.status(200).json({
-      status: "succes",
+      status: "Success",
       products,
     });
   } catch (err) {
     return res.status(404).json({
-      status: "echec",
+      status: "Failed",
       err,
     });
   }
 };
 
-//get one product by cuurent user
+//get one product by current user
 exports.getOneProductById = async (req, res) => {
   try {
     // Test if there is a product
-    const product = await Sell.findById(req.params.idProdcut);
+    const product = await Sell.findById(req.params.idProduct);
     if (!product) {
       return res.status(400).send({
         message: "No product with that id !! ",
@@ -144,18 +144,18 @@ exports.getOneProductById = async (req, res) => {
     // Test if current client is the responsible to this product
     if (product.UserID == req.user.id) {
       return res.status(200).json({
-        status: "succes",
+        status: "Success",
         data: {
           product,
         },
       });
     }
     return res.status(404).json({
-      status: "You are not the respansble of this product !!",
+      status: "You are not the responsible of this product !!",
     });
   } catch (err) {
     return res.status(404).json({
-      status: "echec",
+      status: "Failed",
       data: err,
     });
   }
@@ -165,24 +165,24 @@ exports.getOneProductById = async (req, res) => {
 exports.ChooseClientToSell = async (req, res) => {
   try {
     // Test if there is a product
-    let product = await Product.findById(req.params.idProduct);
+    let product = await Sell.findById(req.params.idProduct);
     if (!product) {
       return res.status(400).send({
         message: "No product with that id !!",
       });
     }
     if (product.UserID == req.user.id) {
-      if (!product.clientChoosen) {
-        if (product.ListeReserve.includes(req.params.idClient)) {
-          product.clientChoosen = req.params.idClient;
-          commande.Status = "Close";
+      if (!product.ClientChosen) {
+        if (product.ListReserve.includes(req.params.idClient)) {
+          product.ClientChosen = req.params.idClient;
+          product.Status = "Close";
           await User.findByIdAndUpdate(req.params.idClient, {
             $push: { BuyProducts: req.params.idProduct },
           });
           //save the last changes
           product.save();
           return res.status(200).send({
-            status: "succes",
+            status: "Success",
             data: {
               product,
             },
@@ -197,34 +197,34 @@ exports.ChooseClientToSell = async (req, res) => {
       });
     }
     return res.status(400).send({
-      message: "You are not the respansble of this product !! ",
+      message: "You are not the responsible of this product !! ",
     });
   } catch (err) {
     return res.status(404).json({
-      status: "echec",
+      status: "Failed",
       message: err,
     });
   }
 };
 //get one product by admin
-exports.getOneProductForAdmn = async (req, res) => {
+exports.getOneProductForAdmin = async (req, res) => {
   try {
     // Test if there is a product
-    const product = await Sell.findById(req.params.idProdcut);
+    const product = await Sell.findById(req.params.idProduct);
     if (!product) {
       return res.status(400).send({
         message: "No product with that id !! ",
       });
     }
     return res.status(200).json({
-      status: "succes",
+      status: "Success",
       data: {
         product,
       },
     });
   } catch (err) {
     return res.status(404).json({
-      status: "echec",
+      status: "Failed",
       data: err,
     });
   }

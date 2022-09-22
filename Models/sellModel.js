@@ -2,13 +2,13 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 
 // Clothes Schema
-const sellSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "please enter your name "],
+const SellSchema = new mongoose.Schema({
+  Called: {
+    Type: String,
+    required: [true, "please enter your Name "],
   },
   Email: {
-    type: String,
+    Type: String,
     trim: true,
     lowercase: true,
     unique: true,
@@ -16,22 +16,22 @@ const sellSchema = new mongoose.Schema({
     validate: [validator.isEmail, "Please fill a valid email !! "],
   },
   Price: {
-    type: Number,
+    Type: Number,
     required: [true, "Please put the price !!  "],
     select: true,
     default: 1,
   },
   UserID: {
-    type: mongoose.Schema.ObjectId,
+    Type: mongoose.Schema.ObjectId,
     ref: "User",
   },
-  type: {
-    type: String,
-    required: [true, "Please put the type of product !!  "],
+  Type: {
+    Type: String,
+    required: [true, "Please put the Type of product !!  "],
     enum: [
       "Transport",
       "SchoolThings",
-      "PCandPhone",
+      "PcAndPhone",
       "OtherThings",
       "HouseThings",
       "Food",
@@ -39,26 +39,25 @@ const sellSchema = new mongoose.Schema({
     ],
     default: "OtherThings",
   },
-  img: {
-    data: buffer,
-    contentType: String,
-  },
+  // Img: {
+  // data: buffer,
+  //   contentType: String,
+  // },
   Status: {
-    type: String,
+    Type: String,
     enum: ["Open", "Close"],
     default: "Open",
   },
-  ListeReserve: [
+  ListReserve: [
     {
-      type: mongoose.Schema.ObjectId,
+      Type: mongoose.Schema.ObjectId,
       ref: "User",
     },
   ],
-  clientChoosen: {
-    type: mongoose.Schema.ObjectId,
+  ClientChosen: {
+    Type: mongoose.Schema.ObjectId,
     ref: "User",
   },
 });
 
-const Sell = mongoose.model("Food", sellSchema);
-module.exports = Sell;
+module.exports = mongoose.models.sell || mongoose.model("sell", SellSchema);

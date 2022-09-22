@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const authController = require("../controllers/authController");
-const userController = require("../controllers/userController");
+const authController = require("../Controllers/authController");
+const userController = require("../Controllers/userController");
 
 //create ew compte
 router.post("/signup", authController.signup);
 
-//login by adress and psw
+//login by address and psw
 router.post("/login", authController.login);
 
-//get profil by current user
+//get profile by current user
 router.get(
   "/me",
   authController.protect,
@@ -18,7 +18,7 @@ router.get(
   userController.getUserById
 );
 
-// Liste of all clients for admin
+// List of all clients for admin
 router.get(
   "/AllClients",
   authController.protect,
@@ -26,7 +26,7 @@ router.get(
   userController.findAllClients
 );
 
-// Liste of all admins for admin
+// List of all admins for admin
 router.get(
   "/AllAdmins",
   authController.protect,
@@ -43,14 +43,14 @@ router.get(
 );
 
 //update user
-router.patch("/:id", authController.protect, userController.updateUser);
+router.patch("/:id", authController.protect, userController.updateProfile);
 
 //delete user for admin
 router.delete(
   "/:idUser",
   authController.protect,
   authController.restrictTo("admin"),
-  userController.deleteUser
+  userController.deleteOneUser
 );
 
 module.exports = router;
